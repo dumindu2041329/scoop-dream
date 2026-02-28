@@ -23,20 +23,97 @@ export function Hero() {
     const y = useTransform(scrollYProgress, [0, 1], [0, 100]);
     const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const imagesRef = useRef<(HTMLImageElement | null)[]>(new Array(80).fill(null));
     const [currentFrame, setCurrentFrame] = useState(0);
+    const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
-        // Preload images to ensure smooth playback
-        for (let i = 0; i < 80; i++) {
-            const img = new Image();
-            img.src = `/Image Sequence/A_lot_of_rich_creamy_chocolate_ice_cream_is_being__9c44cf5f93_${i.toString().padStart(3, "0")}.jpg`;
-        }
+        let animationFrameId: number;
+        let lastPaintTime = 0;
+        const fps = 24;
+        const frameInterval = 1000 / fps;
 
-        const interval = setInterval(() => {
-            setCurrentFrame((prev) => (prev + 1) % 80);
-        }, 1000 / 24); // 24 FPS for cinematic smooth look
+        const loadImages = async () => {
+            const loadFrame = (index: number): Promise<HTMLImageElement> => {
+                return new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.src = `/Image Sequence/A_lot_of_rich_creamy_chocolate_ice_cream_is_being__9c44cf5f93_${index
+                        .toString()
+                        .padStart(3, "0")}.jpg`;
+                    img.onload = () => {
+                        imagesRef.current[index] = img;
+                        resolve(img);
+                    };
+                    img.onerror = reject;
+                });
+            };
 
-        return () => clearInterval(interval);
+            try {
+                // 1. Immediately load frame 0 to show something on screen
+                const firstFrame = await loadFrame(0);
+                if (canvasRef.current) {
+                    const ctx = canvasRef.current.getContext("2d");
+                    if (ctx) {
+                        ctx.drawImage(firstFrame, 0, 0, canvasRef.current.width, canvasRef.current.height);
+                    }
+                }
+                setIsLoaded(true);
+
+                // 2. Load next 15 frames simultaneously (buffer)
+                await Promise.all(
+                    Array.from({ length: 15 }, (_, i) => loadFrame(i + 1))
+                );
+
+                // 3. Stagger load the rest of the sequence in groups of 5
+                for (let i = 16; i < 80; i += 5) {
+                    const batch = [];
+                    for (let j = 0; j < 5 && i + j < 80; j++) {
+                        batch.push(loadFrame(i + j));
+                    }
+                    await Promise.all(batch);
+                }
+            } catch (error) {
+                console.error("Error loading image sequence", error);
+            }
+        };
+
+        loadImages();
+
+        const renderLoop = (time: number) => {
+            if (time - lastPaintTime >= frameInterval) {
+                setCurrentFrame((prev) => {
+                    const nextFrame = (prev + 1) % 80;
+
+                    // Only advance if the next frame's image has actually finished downloading
+                    if (imagesRef.current[nextFrame]) {
+                        if (canvasRef.current) {
+                            const ctx = canvasRef.current.getContext("2d");
+                            if (ctx && imagesRef.current[nextFrame]) {
+                                // Draw the next frame onto the canvas
+                                ctx.drawImage(
+                                    imagesRef.current[nextFrame]!,
+                                    0,
+                                    0,
+                                    canvasRef.current.width,
+                                    canvasRef.current.height
+                                );
+                            }
+                        }
+                        lastPaintTime = time;
+                        return nextFrame;
+                    }
+
+                    // Pause on current frame and wait if buffer is empty
+                    return prev;
+                });
+            }
+            animationFrameId = requestAnimationFrame(renderLoop);
+        };
+
+        animationFrameId = requestAnimationFrame(renderLoop);
+
+        return () => cancelAnimationFrame(animationFrameId);
     }, []);
 
     return (
@@ -257,7 +334,7 @@ export function Hero() {
                             minHeight: "400px",
                         }}
                     >
-                        {/* Central ice cream visual */}
+                        {/* Central sequence visual */}
                         <div
                             style={{
                                 position: "relative",
@@ -267,15 +344,19 @@ export function Hero() {
                                 borderRadius: "30px",
                                 overflow: "hidden",
                                 boxShadow: "0 20px 40px rgba(0,0,0,0.15)",
+                                background: "var(--surface)", // fallback while loading
                             }}
                         >
-                            <img
-                                src={`/Image Sequence/A_lot_of_rich_creamy_chocolate_ice_cream_is_being__9c44cf5f93_${currentFrame.toString().padStart(3, "0")}.jpg`}
-                                alt="Ice Cream Sequence"
+                            <canvas
+                                ref={canvasRef}
+                                width={800} // Actual image sequence resolution
+                                height={800}
                                 style={{
                                     width: "100%",
                                     height: "100%",
                                     objectFit: "cover",
+                                    opacity: isLoaded ? 1 : 0,
+                                    transition: "opacity 0.5s ease-in-out",
                                 }}
                             />
                         </div>
