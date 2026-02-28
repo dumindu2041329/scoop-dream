@@ -1,26 +1,337 @@
 @import "tailwindcss";
 
+/* ============================================
+   ScoopDream Design System
+   ============================================ */
+
+/* Light Mode (Default) */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #FFF8F0;
+  --foreground: #1A0A00;
+  --primary: #E8406B;
+  --primary-hover: #D63660;
+  --secondary: #FFB347;
+  --tertiary: #7EC8A4;
+  --surface: #FFFFFF;
+  --muted: #F5E6D3;
+  --border: #E8D5C0;
+  --text-muted: #7A6555;
+  --shadow-color: rgba(26, 10, 0, 0.08);
+  --shadow-lg: rgba(26, 10, 0, 0.12);
+  --glow-primary: rgba(232, 64, 107, 0.3);
+  --glow-secondary: rgba(255, 179, 71, 0.3);
+  --navbar-bg: rgba(255, 248, 240, 0.85);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Dark Mode */
+[data-theme="dark"] {
+  --background: #0F0A12;
+  --foreground: #F9EDDF;
+  --primary: #FF6B9D;
+  --primary-hover: #FF5A8A;
+  --secondary: #FFCA6B;
+  --tertiary: #5ECFA8;
+  --surface: #1C1424;
+  --muted: #211829;
+  --border: #3A2A44;
+  --text-muted: #A89BAE;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  --shadow-lg: rgba(0, 0, 0, 0.5);
+  --glow-primary: rgba(255, 107, 157, 0.25);
+  --glow-secondary: rgba(255, 202, 107, 0.25);
+  --navbar-bg: rgba(15, 10, 18, 0.85);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ============================================
+   Base Styles
+   ============================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Lora", serif;
+  line-height: 1.7;
+  transition: background-color 0.4s ease, color 0.4s ease;
+  overflow-x: hidden;
+}
+
+/* Color transitions for all themed elements */
+*,
+*::before,
+*::after {
+  transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+/* Disable transitions for motion-sensitive users */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================
+   Typography
+   ============================================ */
+
+h1, h2, h3, h4, h5, h6 {
+  line-height: 1.2;
+}
+
+.font-display {
+  font-family: "Playfair Display", serif;
+}
+
+.font-heading {
+  font-family: "DM Serif Display", serif;
+}
+
+.font-body {
+  font-family: "Lora", serif;
+}
+
+.font-mono {
+  font-family: "DM Mono", monospace;
+}
+
+/* ============================================
+   Scrollbar Styling
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--muted);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+/* ============================================
+   Selection
+   ============================================ */
+
+::selection {
+  background-color: var(--primary);
+  color: white;
+}
+
+/* ============================================
+   Focus States
+   ============================================ */
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ============================================
+   Custom Animations
+   ============================================ */
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  33% {
+    transform: translateY(-10px) rotate(2deg);
+  }
+  66% {
+    transform: translateY(5px) rotate(-1deg);
+  }
+}
+
+@keyframes float-delayed {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  33% {
+    transform: translateY(8px) rotate(-2deg);
+  }
+  66% {
+    transform: translateY(-12px) rotate(1deg);
+  }
+}
+
+@keyframes float-slow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-15px) rotate(3deg);
+  }
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes blob {
+  0%, 100% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+  50% {
+    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+  }
+}
+
+@keyframes drip {
+  0% {
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+  100% {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+}
+
+@keyframes scroll-indicator {
+  0%, 100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(8px);
+    opacity: 0.5;
+  }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-delayed 7s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: float-slow 8s ease-in-out infinite;
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+.animate-blob {
+  animation: blob 7s ease-in-out infinite;
+}
+
+.animate-scroll-indicator {
+  animation: scroll-indicator 2s ease-in-out infinite;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+
+/* ============================================
+   Utility Classes
+   ============================================ */
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.glass {
+  background: var(--navbar-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.container-main {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .container-main {
+    padding: 0 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-main {
+    padding: 0 4rem;
+  }
+}
+
+/* Flavor Card Glow Effect */
+.flavor-glow {
+  box-shadow: 0 0 0 0 transparent;
+  transition: box-shadow 0.4s ease, transform 0.3s ease;
+}
+
+.flavor-glow:hover {
+  transform: scale(1.03) translateY(-4px);
+}
+
+/* Decorative dot pattern */
+.dot-pattern {
+  background-image: radial-gradient(var(--border) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Section divider */
+.section-divider {
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--border) 20%,
+    var(--primary) 50%,
+    var(--border) 80%,
+    transparent
+  );
+  opacity: 0.5;
 }
