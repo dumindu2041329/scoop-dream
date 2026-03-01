@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Playfair_Display, DM_Serif_Display, Lora, DM_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import { ThemeTimeSync } from "@/components/ui/ThemeTimeSync";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ScrollToTop } from "@/components/ui/ScrollToTop";
@@ -73,6 +74,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange={false}
         >
+          <ThemeTimeSync />
           <Navbar />
           <main>{children}</main>
           <Footer />

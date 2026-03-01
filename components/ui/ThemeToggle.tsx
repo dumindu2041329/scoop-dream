@@ -39,7 +39,10 @@ export function ThemeToggle() {
 
     return (
         <button
-            onClick={() => setTheme(isDark ? "light" : "dark")}
+            onClick={() => {
+                setTheme(isDark ? "light" : "dark");
+                window.localStorage.removeItem("theme-time-auto");
+            }}
             className="theme-toggle"
             aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
             title={`Switch to ${isDark ? "Light" : "Dark"} Mode`}
